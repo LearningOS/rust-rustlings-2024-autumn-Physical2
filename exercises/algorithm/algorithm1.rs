@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -43,6 +42,9 @@ impl<T> LinkedList<T> {
             end: None,
         }
     }
+}
+
+impl<T: Clone + PartialOrd> LinkedList<T> {
 
     pub fn add(&mut self, obj: T) {
         let mut node = Box::new(Node::new(obj));
@@ -71,12 +73,48 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut merged_list = LinkedList::new();
+        let mut current_a = list_a.start;
+        let mut current_b = list_b.start;
+
+        while current_a.is_some() && current_b.is_some() {
+            unsafe {
+                let val_a = &(*current_a.unwrap().as_ptr()).val;
+                let val_b = &(*current_b.unwrap().as_ptr()).val;
+
+                
+                if *val_a <= *val_b {
+                    merged_list.add(val_a.clone());
+                    current_a = (*current_a.unwrap().as_ptr()).next; 
+                } else {
+                    merged_list.add(val_b.clone());
+                    current_b = (*current_b.unwrap().as_ptr()).next; 
+                }
+            }
         }
+        while let Some(node) = current_a {
+            unsafe {
+                let val_a = &(*node.as_ptr()).val;
+                merged_list.add(std::ptr::read(val_a));
+                current_a = (*node.as_ptr()).next;
+            }
+        }
+
+        while let Some(node) = current_b {
+            unsafe {
+                let val_b = &(*node.as_ptr()).val;
+                merged_list.add(std::ptr::read(val_b));
+                current_b = (*node.as_ptr()).next;
+            }
+        }
+
+        merged_list
+		//TODO
+		// Self {
+        //     length: 0,
+        //     start: None,
+        //     end: None,
+        // }
 	}
 }
 
